@@ -1,3 +1,1 @@
-$path = "R:/Pipe_Repo/Users/Qurban/Scripts";
-python("import sys;sys.path.append(\"" + $path + "\");import rendering_helper as rh;reload(rh);rh.configureScene()");
-mayaBatchRenderProcedure(0, "", "", "", "");
+python("import rendering as rh;reload(rh);rh.configureScene()");

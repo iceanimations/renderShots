@@ -29,6 +29,7 @@ def configureScene():
     pc.setAttr('defaultResolution.height', 240)
     pc.setAttr('defaultResolution.deviceAspectRatio', 1.333)
     
+    # configure frame range for each layer
     for layer in imaya.getRenderLayers():
         pc.editRenderLayerGlobals(currentRenderLayer=layer)
         minTime = pc.getAttr('defaultRenderGlobals.startFrame')
@@ -38,3 +39,11 @@ def configureScene():
         if not layer.name().lower().startswith('defaultrenderlayer'):
             pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep')
         pc.setAttr('defaultRenderGlobals.byFrameStep', step)
+
+    layers = imaya.getRenderLayers()
+    for layer in layers:
+        layer.renderable.set(0)
+    for layer in layers:
+        layer.renderable.set(1)
+        pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
+        layer.renderable.set(0)
