@@ -96,6 +96,8 @@ class RenderShotsUI(Form, Base):
         ws = pc.workspace(q=True, o=True)
         pc.workspace(homeDir, o=True)
         for shot, filename in renderableFiles.items():
+            print shot, filename
+            qApp.processEvents()
             f = open(osp.join(homeDir, 'info.txt'), 'w')
             f.write(shot)
             f.close()

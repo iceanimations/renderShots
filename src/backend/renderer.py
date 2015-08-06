@@ -10,6 +10,9 @@ import os
 import rendering
 reload(rendering)
 import maya.cmds as cmds
+import imaya
+reload(imaya)
+from PyQt4.QtGui import qApp
 
 melPath = osp.join(osp.dirname(__file__), 'rendering.mel').replace('\\', '/')
 
@@ -25,7 +28,11 @@ class Renderer(object):
     def render(self, filename):
         cmds.file(filename, o=True, prompt=False, f=True)
         rendering.configureScene()
-        pc.mel.mayaBatchRenderProcedure(0, "", "", "", "")
-        #command = r"C:\Program Files\Autodesk\Maya2015\bin\mayabatch.exe -file %s"%osp.normpath(filename)
-        #command += r' -command "source \"%s\""'%melPath
-        #subprocess.call(command)
+        layers = imaya.getRenderLayers()
+        for layer in layers:
+            layer.renderable.set(0)
+        for layer in layers:
+            layer.renderable.set(1)
+            self.parentWin.setStatus('rendering: %s'%layer.name())
+            pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
+            layer.renderable.set(0)
