@@ -11,6 +11,7 @@ reload(renderer)
 homeDir = renderer.homeDir
 projectDir = pc.workspace(q=True, o=True)
 
+
 class CollageMaker(object):
     def __init__(self, parent=None):
         super(CollageMaker, self).__init__()

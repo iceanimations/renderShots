@@ -20,6 +20,10 @@ import backend.renderer as renderer
 reload(renderer)
 import shutil
 import pymel.core as pc
+import backend.collageMaker as collageMaker
+reload(collageMaker)
+import backend.compMaker as compMaker
+reload(compMaker)
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -29,9 +33,6 @@ os.environ['PYTHONPATH'] += os.pathsep + osp.join(rootPath, 'src', 'backend')
 
 title = 'Render Shots'
 homeDir = renderer.homeDir
-nukePath = "C:\Program Files\Nuke8.0v5\python.exe"
-if not osp.exists(nukePath):
-    nukePath = "C:\Program Files\Nuke9.0v4\python.exe"
 
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
 class RenderShotsUI(Form, Base):
@@ -52,7 +53,7 @@ class RenderShotsUI(Form, Base):
         self.renderButton.clicked.connect(self.render)
         self.browseButton.clicked.connect(self.setPath)
         self.shotsPathBox.textChanged.connect(self.populateShots)
-        if not osp.exists(nukePath):
+        if not osp.exists(compMaker.nukePath):
             self.showMessage('It seams like Nuke8.0v5 or Nuke9.0v4 is not installed, please install one')
             return
 
@@ -96,20 +97,23 @@ class RenderShotsUI(Form, Base):
         ws = pc.workspace(q=True, o=True)
         pc.workspace(homeDir, o=True)
         for shot, filename in renderableFiles.items():
-            print shot, filename
-            qApp.processEvents()
             f = open(osp.join(homeDir, 'info.txt'), 'w')
             f.write(shot)
             f.close()
-            self.setStatus('Rendering %s (%s of %s)'%(shot, i, length))
+            self.setStatus('<b>Rendering %s (%s of %s)</b>'%(shot, i, length))
             rdr.render(filename)
             i += 1
 
         pc.workspace(ws, o=True)
         self.setStatus('')
+        self.setSubStatus('')
     
     def setStatus(self, msg):
         self.statusLabel.setText(msg)
+        qApp.processEvents()
+        
+    def setSubStatus(self, msg):
+        self.subStatusLabel.setText(msg)
         qApp.processEvents()
     
     def setPath(self):
