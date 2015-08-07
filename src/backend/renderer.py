@@ -27,7 +27,7 @@ class Renderer(object):
         
     def render(self, filename):
         self.parentWin.setSubStatus('Opening %s'%filename)
-        cmds.file(filename, o=True, f=True)
+        imaya.openFile(filename)
         self.parentWin.setSubStatus('Configuring scene')
         rendering.configureScene()
         layers = imaya.getRenderLayers()
