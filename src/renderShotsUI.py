@@ -54,8 +54,9 @@ class RenderShotsUI(Form, Base):
         self.browseButton.clicked.connect(self.setPath)
         self.shotsPathBox.textChanged.connect(self.populateShots)
         if not osp.exists(compMaker.nukePath):
-            self.showMessage('It seams like Nuke8.0v5 or Nuke9.0v4 is not installed, please install one')
-            return
+            self.showMessage(msg='It seams like Nuke8.0v5 or Nuke9.0v4 is not installed, please install one',
+                             icon=QMessageBox.Information)
+            #return
 
         appUsageApp.updateDatabase('renderShots')
         

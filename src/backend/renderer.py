@@ -27,5 +27,5 @@ class Renderer(object):
         
     def render(self, filename):
         command = r"C:\Program Files\Autodesk\Maya2015\bin\mayabatch.exe -file %s"%osp.normpath(filename)
-        command += r' -command "source \"%s\""'%melPath
+        imaya.openFile(filename)
         subprocess.call(command)
