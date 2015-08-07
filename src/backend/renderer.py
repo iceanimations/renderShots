@@ -26,6 +26,19 @@ class Renderer(object):
         self.parentWin = parent
         
     def render(self, filename):
-        command = r"C:\Program Files\Autodesk\Maya2015\bin\mayabatch.exe -file %s"%osp.normpath(filename)
+        self.parentWin.setSubStatus('Opening %s'%filename)
         imaya.openFile(filename)
-        subprocess.call(command)
+        self.parentWin.setSubStatus('Configuring scene')
+        rendering.configureScene()
+        layers = imaya.getRenderLayers()
+        for layer in layers:
+            layer.renderable.set(0)
+        length = len(layers)
+        i = 1
+        for layer in layers:
+            layer.renderable.set(1)
+            self.parentWin.setSubStatus('rendering: %s (%s of %s)'%(layer.name(), i, length))
+            pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
+            self.parentWin.setSubStatus('')
+            layer.renderable.set(0)
+            i += 1
