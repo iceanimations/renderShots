@@ -13,7 +13,8 @@ def configureScene():
     f = open(osp.join(homeDir, 'info.txt'))
     shot = f.read()
     f.close()
-    
+    ws = pc.workspace(o=True, q=True)
+    pc.workspace(homeDir, o=True)
     node = pc.PyNode('redshiftOptions')
     
     node.imageFilePrefix.set("<Camera>\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_")
@@ -47,3 +48,4 @@ def configureScene():
         layer.renderable.set(1)
         pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
         layer.renderable.set(0)
+    pc.workspace(ws, o=True)
