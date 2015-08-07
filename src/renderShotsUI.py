@@ -78,7 +78,7 @@ class RenderShotsUI(Form, Base):
                 errors[filesDirectory] = 'No maya file found'
                 continue
             if len(files) > 1:
-                sb = cui.SelectionBox(self, [QRadioButton(name, self) for name in files], 'More than one files found in %s, please select one')
+                sb = cui.SelectionBox(self, [QRadioButton(name, self) for name in files], 'More than one files found in %s, please select one'%filesDirectory)
                 sb.setCancelToolTip('Press to skip this shot')
                 if not sb.exec_():
                     continue
