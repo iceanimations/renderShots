@@ -8,11 +8,14 @@ import os
 osp = os.path
 import renderer
 reload(renderer)
+import subprocess
 
 homeDir = renderer.homeDir
 compPath = osp.join(homeDir, 'comps')
 if not osp.exists(compPath):
     os.mkdir(compPath)
+
+compositingFile = osp.join(osp.dirname(__file__), 'compositing.py')
 
 nukePath = r"C:\Program Files\Nuke8.0v5\python.exe"
 if not osp.exists(nukePath):
@@ -31,5 +34,13 @@ class CompMaker(object):
         if self.parentWin:
             self.parentWin.setSubStatus(msg)
     
-    def make(self):
-        pass
+    def make(self, shots):
+        os.chdir(osp.dirname(nukePath))
+        values = []
+        command = 'python %s'%(compositingFile)
+        for shot in shots:
+            values.append(shot)
+        with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
+            f.write(str(values))
+        self.setStatus('Creating and rendering comps')
+        subprocess.call(command)

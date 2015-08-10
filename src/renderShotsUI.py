@@ -68,7 +68,10 @@ class RenderShotsUI(Form, Base):
                 shutil.rmtree(name)
         errors = {}
         renderableFiles = {}
-        for shot in self.shotsBox.getSelectedItems():
+        shots = self.shotsBox.getSelectedItems()
+        if not shots:
+            shots = self.shotsBox.getItems()
+        for shot in shots:
             filesDirectory = osp.join(self.getShotsPath(), shot, 'lighting', 'files')
             if not osp.exists(filesDirectory):
                 errors[filesDirectory] = 'Directory does not exist'
@@ -104,6 +107,8 @@ class RenderShotsUI(Form, Base):
             self.setStatus('<b>Rendering %s (%s of %s)</b>'%(shot, i, length))
             rdr.render(filename)
             i += 1
+        cm = compMaker.CompMaker(self)
+        cm.make(renderableFiles.keys())
 
         pc.workspace(ws, o=True)
         self.setStatus('')

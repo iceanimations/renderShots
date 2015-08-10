@@ -8,43 +8,111 @@ import nuke
 import nukescripts
 import os
 osp = os.path
+import shutil
+import re
 
-def createComp(args):
-    shotPath = r"C:\Users\qurban.ali\Documents\render_shots"
-    compPath = osp.join(shotPath, 'comps')
+homeDir = osp.join(osp.expanduser('~'), 'render_shots')
+
+def createNode(nodeName):
+    node = nuke.createNode(nodeName)
+    nukescripts.clear_selection_recursive()
+    node.setSelected(True)
+    
+def createReadNode(nodes, layerName):
+    for node in nodes:
+        if node.name().lower().startswith(layerName):
+            node.setSelected(True)
+            break
+
+def createComp(shots):
+    
+    compPath = osp.join(homeDir, 'comps')
     if not osp.exists(compPath):
-    os.mkdir(compPath)
-    shots = ['SQ009_SH003', 'SQ009_SH004']
+        os.mkdir(compPath)
+    
+    for phile in os.listdir(compPath):
+        filePath = osp.join(compPath, phile)
+        if osp.isfile(filePath):
+            try:
+                os.remove(filePath)
+            except:
+                pass
+        elif osp.isdir(filePath):
+            try:
+                shutil.rmtree(filePath)
+            except:
+                pass
+    
+    rendersPath = osp.join(compPath, 'renders')
+    if not osp.exists(rendersPath):
+        os.mkdir(rendersPath)
     
     for shot in shots:
-    layers = os.listdir(osp.join(shotPath, shot))
-    nodes = []
-    if layers:
-        for layer in layers:
-            layerPath = osp.join(shotPath, layer)
-            for aov in os.listdir(layerPath):
-                if aov.lower().endswith('beauty'):
-                    node = nuke.createNode('Read')
-                    node.setName(layer)
-                    nodes.append(node)
-    else:
-        pass
-    if nodes:
-        mergeNodes = []
-        nukescripts.clear_selection_recursive()
-        for node in nodes:
-            if node.name().lower().startswith('cont'):
-                node.setSelected(True)
-        for node in nodes:
-            if node.name().lower().startswith('env'):
-                node.setSelected(True)
-        if len(nuke.selectedNodes()) == 2:
+        shotPath = osp.join(homeDir, shot)
+        layers = os.listdir(shotPath)
+        nodes = []
+        if layers:
+            for layer in layers:
+                layerPath = osp.join(shotPath, layer)
+                for aov in os.listdir(layerPath):
+                    if aov.lower().endswith('beauty'):
+                        node = nuke.createNode('Read')
+                        aovPath = osp.join(layerPath, aov)
+                        filenames = os.listdir(aovPath)
+                        if filenames:
+                            match = re.search('\.\d+\.', filenames[0])
+                            if match:
+                                frames = [int(re.search('\.\d+\.', phile).group()[1:-1]) for phile in filenames]
+                                frames = sorted(frames)
+                                for i, frame in enumerate(frames):
+                                    for phile in filenames:
+                                        if str(frame) in phile:
+                                            try:
+                                                os.rename(osp.join(aovPath, phile), osp.join(aovPath, re.sub('\.\d+\.', '.'+str(i+1)+'.', phile)))
+                                            except:
+                                                pass
+                                frames = [1, 2, 3]
+                                #hashes = '.'+'#'* (len(match.group()) -2) +'.'
+                                node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.#.', filenames[0])).replace('\\', '/'))
+                                node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
+                                node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
+                                node.setName(layer)
+                                nodes.append(node)
+        else:
+            pass
+        if nodes:
             nukescripts.clear_selection_recursive()
-            node = nuke.createNode('Merge')
-            node.setSelected(True)
-            mergeNodes.append(node)
-        lastNode = nuke.selectedNode()
-        nukescripts.clear_selection_recursive()
+            createReadNode(nodes, 'cont')
+            createReadNode(nodes, 'env')
+            if len(nuke.selectedNodes()) == 2:
+                createNode('Merge')
+            lastNode = nuke.selectedNode()
+            nukescripts.clear_selection_recursive()
+            createReadNode(nodes, 'shadow')
+            if lastNode: lastNode.setSelected(True)
+            if len(nuke.selectedNodes()) == 2:
+                createNode('Merge')
+            lastNode = nuke.selectedNode()
+            nukescripts.clear_selection_recursive()
+            createReadNode(nodes, 'char')
+            if lastNode: lastNode.setSelected(True)
+            if len(nuke.selectedNodes()) == 2:
+                createNode('Merge')
+            writeNode = nuke.createNode('Write')
+            renderShotDir = osp.join(rendersPath, shot)
+            if not osp.exists(renderShotDir):
+                os.mkdir(renderShotDir)
+            writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.####.jpg').replace('\\', '/'))
+            nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
+            nuke.execute(writeNode, 1, 3, continueOnError=True)
+        #nuke.scriptClose()
 
 if __name__ == '__main__':
-    createComp(sys.argv[1:])
+    shots = None
+    with open(osp.join(homeDir, 'info1.txt')) as f:
+        shots = eval(f.read())
+    if shots:
+        try:
+            createComp(shots)
+        except Exception as ex:
+            print ex
