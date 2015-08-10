@@ -17,10 +17,8 @@ def configureScene():
     pc.workspace(homeDir, o=True)
     node = pc.PyNode('redshiftOptions')
     
-    node.imageFilePrefix.set("<Camera>\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_")
+    node.imageFilePrefix.set("%s\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_"%shot)
     RedshiftAOVTools.fixAOVPrefixes()
-    
-    node.imageFilePrefix.set(node.imageFilePrefix.get().replace('<Camera>', shot))
 
     for aov in pc.ls(type=pc.nt.RedshiftAOV):
         aov.filePrefix.set(aov.filePrefix.get().replace('<Camera>', shot))
@@ -29,16 +27,17 @@ def configureScene():
     pc.setAttr('defaultResolution.width', 320)
     pc.setAttr('defaultResolution.height', 240)
     pc.setAttr('defaultResolution.deviceAspectRatio', 1.333)
-    
+
+    minTime = pc.playbackOptions(q=True, minTime=True) 
+    maxTime = pc.playbackOptions(q=True, maxTime=True) 
+    diff = maxTime - minTime
+    step = diff/2.0
     # configure frame range for each layer
     for layer in imaya.getRenderLayers():
         pc.editRenderLayerGlobals(currentRenderLayer=layer)
-        minTime = pc.getAttr('defaultRenderGlobals.startFrame')
-        maxTime = pc.getAttr('defaultRenderGlobals.endFrame')
-        diff = maxTime - minTime
-        step = diff/2.0
-        if not layer.name().lower().startswith('defaultrenderlayer'):
-            pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep')
+        pc.setAttr('defaultRenderGlobals.startFrame', minTime)
+        pc.setAttr('defaultRenderGlobals.endFrame', maxTime)
+        #pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep', remove=True)
         pc.setAttr('defaultRenderGlobals.byFrameStep', step)
 
     layers = imaya.getRenderLayers()
