@@ -20,10 +20,6 @@ import backend.renderer as renderer
 reload(renderer)
 import shutil
 import pymel.core as pc
-import backend.collageMaker as collageMaker
-reload(collageMaker)
-import backend.compMaker as compMaker
-reload(compMaker)
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -53,10 +49,6 @@ class RenderShotsUI(Form, Base):
         self.renderButton.clicked.connect(self.render)
         self.browseButton.clicked.connect(self.setPath)
         self.shotsPathBox.textChanged.connect(self.populateShots)
-        if not osp.exists(compMaker.nukePath):
-            self.showMessage(msg='It seams like Nuke8.0v5 or Nuke9.0v4 is not installed, please install one',
-                             icon=QMessageBox.Information)
-            #return
 
         appUsageApp.updateDatabase('renderShots')
         
@@ -66,6 +58,16 @@ class RenderShotsUI(Form, Base):
             name = osp.join(homeDir, directory)
             if osp.isdir(name):
                 shutil.rmtree(name)
+
+        import backend.collageMaker as collageMaker
+        reload(collageMaker)
+        import backend.compMaker as compMaker
+        reload(compMaker)
+        if not osp.exists(compMaker.nukePath):
+            self.showMessage(msg='It seams like Nuke8.0v5 or Nuke9.0v4 is not installed, please install one',
+                             icon=QMessageBox.Information)
+            return
+
         errors = {}
         renderableFiles = {}
         shots = self.shotsBox.getSelectedItems()
@@ -95,20 +97,32 @@ class RenderShotsUI(Form, Base):
                                    details=qutil.dictionaryToDetails(errors))
             if btn == QMessageBox.No:
                 return
+        # render the shots
         rdr = renderer.Renderer(self)
         length = len(renderableFiles)
         i = 1
         ws = pc.workspace(q=True, o=True)
         pc.workspace(homeDir, o=True)
+        frames = {}
         for shot, filename in renderableFiles.items():
             f = open(osp.join(homeDir, 'info.txt'), 'w')
             f.write(shot)
             f.close()
             self.setStatus('<b>Rendering %s (%s of %s)</b>'%(shot, i, length))
-            rdr.render(filename)
+            frames[shot] = rdr.render(filename)
             i += 1
+        
+        # create comps for each shot
         cm = compMaker.CompMaker(self)
         cm.make(renderableFiles.keys())
+        cm.rename(frames)
+        
+        #create collage for each shot
+        cm = collageMaker.CollageMaker(self)
+        for shot in renderableFiles.keys():
+            cm.makeShot(shot)
+        path = cm.make()
+        self.showMessage(msg='<a href=\"%s\" style=\"color: lightGreen\"'%path.replace('\\', '/') + '>' + path + '</a>')
 
         pc.workspace(ws, o=True)
         self.setStatus('')

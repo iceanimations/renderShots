@@ -78,8 +78,6 @@ def createComp(shots):
                                 node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
                                 node.setName(layer)
                                 nodes.append(node)
-        else:
-            pass
         if nodes:
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'cont')
@@ -105,7 +103,10 @@ def createComp(shots):
             writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.####.jpg').replace('\\', '/'))
             nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
             nuke.execute(writeNode, 1, 3, continueOnError=True)
-        #nuke.scriptClose()
+        nuke.scriptClose()
+        
+        #TODO: rename the render files to contain their original frame numbers
+        
 
 if __name__ == '__main__':
     shots = None

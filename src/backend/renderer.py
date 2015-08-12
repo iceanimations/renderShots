@@ -4,12 +4,10 @@ Created on Jul 28, 2015
 @author: qurban.ali
 '''
 import pymel.core as pc
-import subprocess
 import os.path as osp
 import os
 import rendering
 reload(rendering)
-import maya.cmds as cmds
 import imaya
 reload(imaya)
 from PyQt4.QtGui import qApp
@@ -29,7 +27,9 @@ class Renderer(object):
         self.parentWin.setSubStatus('Opening %s'%filename)
         imaya.openFile(filename)
         self.parentWin.setSubStatus('Configuring scene')
-        rendering.configureScene()
+        
+        frames = rendering.configureScene()
+        
         layers = imaya.getRenderLayers()
         for layer in layers:
             layer.renderable.set(0)
@@ -42,3 +42,4 @@ class Renderer(object):
             self.parentWin.setSubStatus('')
             layer.renderable.set(0)
             i += 1
+        return frames

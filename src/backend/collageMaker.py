@@ -3,14 +3,20 @@ Created on Jul 28, 2015
 
 @author: qurban.ali
 '''
-import pymel.core as pc
 import os.path as osp
 import renderer
 reload(renderer)
+import os
+import compMaker
+reload(compMaker)
+import subprocess
 
 homeDir = renderer.homeDir
-projectDir = pc.workspace(q=True, o=True)
-
+collageDir = osp.join(homeDir, 'collage')
+if not osp.exists(collageDir):
+    os.mkdir(collageDir)
+compDir = compMaker.compPath
+compRenderDir = osp.join(compDir, 'renders')
 
 class CollageMaker(object):
     def __init__(self, parent=None):
@@ -18,8 +24,21 @@ class CollageMaker(object):
         self.parentWin = parent
         
     def makeShot(self, shot):
-        
-        pass
+        path = osp.join(compRenderDir, shot)
+        if osp.exists(path):
+            command = r"R:\Pipe_Repo\Users\Qurban\applications\ImageMagick\montage.exe -geometry +1+1"
+            files = sorted(os.listdir(path))
+            if files:
+                for phile in files:
+                    command += ' %s'%osp.join(path, phile)
+                command += ' %s'%osp.join(collageDir, shot+'.png')
+                subprocess.call(command, shell=True)
     
     def make(self):
-        pass
+        command = r"R:\Pipe_Repo\Users\Qurban\applications\ImageMagick\montage.exe -geometry +1+1 -label %f -frame 5 -background '#336699'"
+        for phile in os.listdir(collageDir):
+            command += ' %s'%osp.join(collageDir, phile)
+        collagePath = osp.join(collageDir, 'collage.png')
+        command += ' %s'%collagePath
+        subprocess.call(command, shell=True)
+        return collagePath

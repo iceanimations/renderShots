@@ -3,12 +3,12 @@ Created on Aug 1, 2015
 
 @author: qurban.ali
 '''
-import sys
 import os
 osp = os.path
 import renderer
 reload(renderer)
 import subprocess
+import re
 
 homeDir = renderer.homeDir
 compPath = osp.join(homeDir, 'comps')
@@ -43,4 +43,13 @@ class CompMaker(object):
         with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
             f.write(str(values))
         self.setStatus('Creating and rendering comps')
-        subprocess.call(command)
+        subprocess.call(command, shell=True)
+        
+    def rename(self, frames):
+        renderPath = osp.join(compPath, 'renders')
+        for shot, frame in frames.items():
+            shotPath = osp.join(renderPath, shot)
+            files = sorted(os.listdir(shotPath))
+            for ph, fr in zip(files, frame):
+                name = shotPath, re.sub('\.\d+\.', fr, ph)
+                os.rename(osp.join(shotPath, ph), osp.join(shotPath, name))
