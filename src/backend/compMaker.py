@@ -51,5 +51,5 @@ class CompMaker(object):
             shotPath = osp.join(renderPath, shot)
             files = sorted(os.listdir(shotPath))
             for ph, fr in zip(files, frame):
-                name = shotPath, re.sub('\.\d+\.', fr, ph)
+                name = re.sub('\.\d+\.', str(fr), ph)
                 os.rename(osp.join(shotPath, ph), osp.join(shotPath, name))
