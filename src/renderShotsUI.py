@@ -54,10 +54,15 @@ class RenderShotsUI(Form, Base):
         
         
     def render(self):
-        for directory in os.listdir(homeDir):
-            name = osp.join(homeDir, directory)
-            if osp.isdir(name):
-                shutil.rmtree(name)
+        try:
+            for directory in os.listdir(homeDir):
+                name = osp.join(homeDir, directory)
+                if osp.isdir(name):
+                    shutil.rmtree(name)
+        except Exception as ex:
+            self.showMessage(msg=str(ex),
+                             icon=QMessageBox.Information)
+            return
 
         import backend.collageMaker as collageMaker
         reload(collageMaker)

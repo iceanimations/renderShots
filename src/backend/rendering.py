@@ -9,7 +9,7 @@ reload(imaya)
 
 homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
-def configureScene():
+def configureScene(parent):
     f = open(osp.join(homeDir, 'info.txt'))
     shot = f.read()
     f.close()
@@ -19,14 +19,18 @@ def configureScene():
     
     node.imageFilePrefix.set("%s\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_"%shot)
     RedshiftAOVTools.fixAOVPrefixes()
-
-    for aov in pc.ls(type=pc.nt.RedshiftAOV):
-        aov.filePrefix.set(aov.filePrefix.get().replace('<Camera>', shot))
+    
+    try:
+        for aov in pc.ls(type=pc.nt.RedshiftAOV):
+            aov.filePrefix.set(aov.filePrefix.get().replace('<Camera>', shot))
+    except AttributeError:
+        parent.showMessage(msg='It seems like Redshift is not installed or not loaded')
+        return
     
     pc.setAttr('defaultRenderGlobals.animation', 1)
     pc.setAttr('defaultResolution.width', 960)
     pc.setAttr('defaultResolution.height', 540)
-    pc.setAttr('defaultResolution.deviceAspectRatio', 1.333)
+    pc.setAttr('defaultResolution.deviceAspectRatio', 1.778)
 
     minTime = pc.playbackOptions(q=True, minTime=True) 
     maxTime = pc.playbackOptions(q=True, maxTime=True) 
@@ -40,13 +44,6 @@ def configureScene():
         #pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep', remove=True)
         pc.setAttr('defaultRenderGlobals.byFrameStep', step)
 
-#     layers = imaya.getRenderLayers()
-#     for layer in layers:
-#         layer.renderable.set(0)
-#     for layer in layers:
-#         layer.renderable.set(1)
-#         pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
-#         layer.renderable.set(0)
     pc.workspace(ws, o=True)
     if diff%2 != 0:
         step += 0.5

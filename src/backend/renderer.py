@@ -28,7 +28,7 @@ class Renderer(object):
         imaya.openFile(filename)
         self.parentWin.setSubStatus('Configuring scene')
         
-        frames = rendering.configureScene()
+        frames = rendering.configureScene(self.parentWin)
         
         layers = imaya.getRenderLayers()
         for layer in layers:
