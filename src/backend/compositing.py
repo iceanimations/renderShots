@@ -109,9 +109,13 @@ def createComp(shots):
         
 
 if __name__ == '__main__':
-    shots = None
-    with open(osp.join(homeDir, 'info1.txt')) as f:
-        shots = eval(f.read())
+    if len(sys.argv) > 1:
+        homeDir = sys.argv[0]
+        shots = sys.argv[1:]
+    else:
+        shots = None
+        with open(osp.join(homeDir, 'info1.txt')) as f:
+            shots = eval(f.read())
     if shots:
         try:
             createComp(shots)

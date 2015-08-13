@@ -36,7 +36,7 @@ class CollageMaker(object):
     
     def make(self):
         command = r"R:\Pipe_Repo\Users\Qurban\applications\ImageMagick\montage.exe -geometry +1+1 -label %f -frame 5 -background '#336699'"
-        for phile in os.listdir(collageDir):
+        for phile in sorted(os.listdir(collageDir)):
             command += ' %s'%osp.join(collageDir, phile)
         collagePath = osp.join(collageDir, 'collage.png')
         command += ' %s'%collagePath
