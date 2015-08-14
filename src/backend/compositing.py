@@ -79,28 +79,38 @@ def createComp(shots):
                                 node.setName(layer)
                                 nodes.append(node)
         if nodes:
+            
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'cont')
             createReadNode(nodes, 'env')
             if len(nuke.selectedNodes()) == 2:
                 createNode('Merge')
-            lastNode = nuke.selectedNode()
+            try:
+                lastNode = nuke.selectedNode()
+            except:
+                lastNode = None
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'shadow')
             if lastNode: lastNode.setSelected(True)
-            if len(nuke.selectedNodes()) == 2:
-                createNode('Merge')
-            lastNode = nuke.selectedNode()
-            nukescripts.clear_selection_recursive()
+            try:
+                if len(nuke.selectedNodes()) == 2:
+                    createNode('Merge')
+                lastNode = nuke.selectedNode()
+                nukescripts.clear_selection_recursive()
+            except:
+                pass
             createReadNode(nodes, 'char')
             if lastNode: lastNode.setSelected(True)
-            if len(nuke.selectedNodes()) == 2:
-                createNode('Merge')
+            try:
+                if len(nuke.selectedNodes()) == 2:
+                    createNode('Merge')
+            except:
+                return
             writeNode = nuke.createNode('Write')
             renderShotDir = osp.join(rendersPath, shot)
             if not osp.exists(renderShotDir):
                 os.mkdir(renderShotDir)
-            writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.####.jpg').replace('\\', '/'))
+            writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.#####.jpg').replace('\\', '/'))
             nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
             nuke.execute(writeNode, 1, 3, continueOnError=True)
         nuke.scriptClose()
