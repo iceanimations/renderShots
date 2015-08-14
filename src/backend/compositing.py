@@ -11,7 +11,7 @@ osp = os.path
 import shutil
 import re
 
-homeDir = osp.join(osp.expanduser('~'), 'render_shots')
+#homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
 def createNode(nodeName):
     node = nuke.createNode(nodeName)
@@ -109,15 +109,12 @@ def createComp(shots):
         
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        homeDir = sys.argv[0]
-        shots = sys.argv[1:]
-    else:
-        shots = None
-        with open(osp.join(homeDir, 'info1.txt')) as f:
-            shots = eval(f.read())
+    shots = None
+    with open(osp.join(osp.expanduser('~'), 'compositing', 'info.txt')) as f:
+        shots = eval(f.read())
     if shots:
         try:
-            createComp(shots)
+            homeDir = shots[0]
+            createComp(shots[1:])
         except Exception as ex:
             print ex

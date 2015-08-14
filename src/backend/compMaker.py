@@ -5,12 +5,15 @@ Created on Aug 1, 2015
 '''
 import os
 osp = os.path
-import renderer
-reload(renderer)
 import subprocess
 import re
 
-homeDir = renderer.homeDir
+try:
+    import renderer
+    reload(renderer)
+    homeDir = renderer.homeDir
+except:
+    pass
 compPath = osp.join(homeDir, 'comps')
 if not osp.exists(compPath):
     os.mkdir(compPath)
@@ -36,12 +39,9 @@ class CompMaker(object):
     
     def make(self, shots):
         os.chdir(osp.dirname(nukePath))
-        values = []
         command = 'python %s'%(compositingFile)
-        for shot in shots:
-            values.append(shot)
         with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
-            f.write(str(values))
+            f.write(str(shots))
         self.setStatus('Creating and rendering comps')
         subprocess.call(command, shell=True)
         
