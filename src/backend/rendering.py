@@ -10,7 +10,17 @@ import os
 
 homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
-def configureScene(parent):
+def render():
+    layers = imaya.getRenderLayers()
+    for layer in layers:
+        layer.renderable.set(0)
+    for layer in layers:
+        layer.renderable.set(1)
+        pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
+        #self.parentWin.setSubStatus('')
+        layer.renderable.set(0)
+
+def configureScene(parent=None, renderScene=False):
     f = open(osp.join(homeDir, 'info.txt'))
     shot = f.read()
     f.close()
@@ -25,7 +35,10 @@ def configureScene(parent):
         for aov in pc.ls(type=pc.nt.RedshiftAOV):
             aov.filePrefix.set(aov.filePrefix.get().replace('<Camera>', shot))
     except AttributeError:
-        parent.showMessage(msg='It seems like Redshift is not installed or not loaded')
+        if parent:
+            parent.showMessage(msg='It seems like Redshift is not installed or not loaded')
+        else:
+            print 'It seems like Redshift is not installed or not loaded'
         return
     
     pc.setAttr('defaultRenderGlobals.animation', 1)
@@ -56,4 +69,9 @@ def configureScene(parent):
     pc.workspace(ws, o=True)
     if diff%2 != 0:
         step += 0.5
-    return [int(minTime), int(minTime + step), int(maxTime)]
+    frames = [int(minTime), int(minTime + step), int(maxTime)]
+    with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
+        f.write(str(frames))
+    if renderScene:
+        render()
+    return frames

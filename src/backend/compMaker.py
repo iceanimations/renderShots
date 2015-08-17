@@ -7,6 +7,7 @@ import os
 osp = os.path
 import subprocess
 import re
+import iutil
 
 try:
     import renderer
@@ -56,4 +57,6 @@ class CompMaker(object):
             files = sorted(os.listdir(shotPath))
             for ph, fr in zip(files, frame):
                 name = re.sub('\.\d+\.', '.'+ str(fr) +'.', ph)
-                os.rename(osp.join(shotPath, ph), osp.join(shotPath, name))
+                path = osp.join(shotPath, name)
+                os.rename(osp.join(shotPath, ph), path)
+                iutil.addFrameNumber(path, str(fr))

@@ -114,7 +114,11 @@ class RenderShotsUI(Form, Base):
             f.write(shot)
             f.close()
             self.setStatus('<b>Rendering %s (%s of %s)</b>'%(shot, i, length))
-            frames[shot] = rdr.render(filename)
+            frame = rdr.render(filename)
+            if not frame:
+                with open(osp.join(homeDir, 'info1.txt')) as f:
+                    frame = eval(f.read())
+            frames[shot] = frame
             i += 1
         
         # create comps for each shot

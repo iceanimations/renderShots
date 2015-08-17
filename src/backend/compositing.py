@@ -113,9 +113,6 @@ def createComp(shots):
             nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
             nuke.execute(writeNode, 1, 3, continueOnError=True)
         nuke.scriptClose()
-        
-        #TODO: rename the render files to contain their original frame numbers
-        
 
 if __name__ == '__main__':
     shots = None
