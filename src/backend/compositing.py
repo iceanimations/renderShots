@@ -72,7 +72,6 @@ def createComp(shots):
                                             except:
                                                 pass
                                 frames = [1, 2, 3]
-                                #hashes = '.'+'#'* (len(match.group()) -2) +'.'
                                 node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.#.', filenames[0])).replace('\\', '/'))
                                 node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
                                 node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))

@@ -17,6 +17,10 @@ except:
 compPath = osp.join(homeDir, 'comps')
 if not osp.exists(compPath):
     os.mkdir(compPath)
+    
+compositingDir = osp.join(osp.expanduser('~'), 'compositing')
+if not osp.exists(compositingDir):
+    os.mkdir(compositingDir)
 
 compositingFile = osp.join(osp.dirname(__file__), 'compositing.py')
 
@@ -40,8 +44,8 @@ class CompMaker(object):
     def make(self, shots):
         os.chdir(osp.dirname(nukePath))
         command = 'python %s'%(compositingFile)
-        with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
-            f.write(str(shots))
+        with open(osp.join(compositingDir, 'info.txt'), 'w') as f:
+            f.write(str([homeDir] + shots))
         self.setStatus('Creating and rendering comps')
         subprocess.call(command, shell=True)
         

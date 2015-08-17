@@ -6,6 +6,7 @@ import os.path as osp
 import pymel.core as pc
 import imaya
 reload(imaya)
+import os
 
 homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
@@ -28,12 +29,20 @@ def configureScene(parent):
         return
     
     pc.setAttr('defaultRenderGlobals.animation', 1)
-    pc.setAttr('defaultResolution.width', 960)
-    pc.setAttr('defaultResolution.height', 540)
-    pc.setAttr('defaultResolution.deviceAspectRatio', 1.778)
+    if os.environ['USERNAME'] == 'qurban.ali':
+        width = 320
+        height = 240
+        ratio = 1.333
+    else:
+        width = 960
+        height = 540
+        ratio = 1.778
+    pc.setAttr('defaultResolution.width', width)
+    pc.setAttr('defaultResolution.height', height)
+    pc.setAttr('defaultResolution.deviceAspectRatio', ratio)
 
-    minTime = pc.playbackOptions(q=True, minTime=True) 
-    maxTime = pc.playbackOptions(q=True, maxTime=True) 
+    minTime = pc.playbackOptions(q=True, minTime=True)
+    maxTime = pc.playbackOptions(q=True, maxTime=True)
     diff = maxTime - minTime
     step = diff/2.0
     # configure frame range for each layer
