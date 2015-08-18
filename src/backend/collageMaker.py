@@ -6,6 +6,8 @@ Created on Jul 28, 2015
 import os.path as osp
 import os
 import subprocess
+import iutil
+reload(iutil)
 
 try:
     import renderer
@@ -26,15 +28,17 @@ class CollageMaker(object):
         super(CollageMaker, self).__init__()
         self.parentWin = parent
         
-    def makeShot(self, shot, size='100%'):
+    def makeShot(self, shot, size='100%', text=None):
         path = osp.join(compRenderDir, shot)
         if osp.exists(path):
             command = r"R:\Pipe_Repo\Users\Qurban\applications\ImageMagick\montage.exe -geometry +1+1"
             files = sorted(os.listdir(path))
             if files:
-                for phile in files:
+                for i, phile in enumerate(files):
                     filePath = osp.join(path, phile)
                     self.resizeImages(filePath, size)
+                    if text:
+                        iutil.addFrameNumber(filePath, text[i])
                     command += ' %s'%filePath
                 command += ' %s'%osp.join(collageDir, shot+'.png')
                 subprocess.call(command, shell=True)
