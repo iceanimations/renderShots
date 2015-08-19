@@ -81,6 +81,7 @@ def createComp(shots):
             
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'cont')
+            createReadNode(nodes, 'occ')
             createReadNode(nodes, 'env')
             if len(nuke.selectedNodes()) == 2:
                 createNode('Merge')
@@ -88,6 +89,18 @@ def createComp(shots):
                 lastNode = nuke.selectedNode()
             except:
                 lastNode = None
+            
+            nukescripts.clear_selection_recursive()
+            createReadNode(nodes, 'reflection')
+            if lastNode: lastNode.setSelected(True)
+            try:
+                if len(nuke.selectedNodes()) == 2:
+                    createNode('Merge')
+                lastNode = nuke.selectedNode()
+                nukescripts.clear_selection_recursive()
+            except:
+                pass
+            
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'shadow')
             if lastNode: lastNode.setSelected(True)
