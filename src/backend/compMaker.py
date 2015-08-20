@@ -54,6 +54,7 @@ class CompMaker(object):
         renderPath = osp.join(compPath, 'renders')
         for shot, frame in frames.items():
             shotPath = osp.join(renderPath, shot)
+            if not osp.exists(shotPath): continue
             files = sorted(os.listdir(shotPath))
             for ph, fr in zip(files, frame):
                 name = re.sub('\.\d+\.', '.'+ str(fr) +'.', ph)

@@ -50,6 +50,7 @@ def createComp(shots):
     
     for shot in shots:
         shotPath = osp.join(homeDir, shot)
+        if not osp.exists(shotPath): continue
         layers = os.listdir(shotPath)
         nodes = []
         if layers:
