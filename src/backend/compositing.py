@@ -17,6 +17,7 @@ def createNode(nodeName):
     node = nuke.createNode(nodeName)
     nukescripts.clear_selection_recursive()
     node.setSelected(True)
+    return node
     
 def createReadNode(nodes, layerName):
     for node in nodes:
@@ -80,16 +81,24 @@ def createComp(shots):
         if nodes:
             
             nukescripts.clear_selection_recursive()
-            createReadNode(nodes, 'cont')
             createReadNode(nodes, 'occ')
+            createReadNode(nodes, 'env_occ')
             createReadNode(nodes, 'env')
             if len(nuke.selectedNodes()) == 2:
-                createNode('Merge')
+                createNode('Merge').knob('operation').setValue(15)
             try:
                 lastNode = nuke.selectedNode()
             except:
                 lastNode = None
-            
+            createReadNode(nodes, 'cont')
+            if lastNode: lastNode.setSelected(True)
+            try:
+                if len(nuke.selectedNodes()) == 2:
+                    createNode('Merge').knob('operation').setValue(15)
+                lastNode = nuke.selectedNode()
+                nukescripts.clear_selection_recursive()
+            except:
+                pass
             nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'reflection')
             if lastNode: lastNode.setSelected(True)
@@ -112,6 +121,12 @@ def createComp(shots):
             except:
                 pass
             createReadNode(nodes, 'char')
+            createReadNode(nodes, 'char_occ')
+            try:
+                if len(nuke.selectedNodes()) == 2:
+                    createNode('Merge').knob('operation').setValue(15)
+            except:
+                pass
             if lastNode: lastNode.setSelected(True)
             try:
                 if len(nuke.selectedNodes()) == 2:
