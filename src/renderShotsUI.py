@@ -46,6 +46,7 @@ class RenderShotsUI(Form, Base):
         self.setWindowTitle(title)
         self.shotsBox = cui.MultiSelectComboBox(self, '--Select Shots--')
         self.pathLayout.addWidget(self.shotsBox)
+        self.lastPath = ''
         
         self.resolutions = OrderedDict()
         self.resolutions['320x240'] = [320, 240, 1.333],
