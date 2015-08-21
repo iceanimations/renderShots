@@ -20,7 +20,7 @@ def render():
         #self.parentWin.setSubStatus('')
         layer.renderable.set(0)
 
-def configureScene(parent=None, renderScene=False):
+def configureScene(parent=None, renderScene=False, resolution=None):
     f = open(osp.join(homeDir, 'info.txt'))
     shot = f.read()
     f.close()
@@ -40,19 +40,11 @@ def configureScene(parent=None, renderScene=False):
         else:
             print 'It seems like Redshift is not installed or not loaded'
         return
-    
+    resolution = resolution[0]
     pc.setAttr('defaultRenderGlobals.animation', 1)
-    if os.environ['USERNAME'] == 'qurban.ali':
-        width = 320
-        height = 240
-        ratio = 1.333
-    else:
-        width = 960
-        height = 540
-        ratio = 1.778
-    pc.setAttr('defaultResolution.width', width)
-    pc.setAttr('defaultResolution.height', height)
-    pc.setAttr('defaultResolution.deviceAspectRatio', ratio)
+    pc.setAttr('defaultResolution.width', int(resolution[0]))
+    pc.setAttr('defaultResolution.height', int(resolution[1]))
+    pc.setAttr('defaultResolution.deviceAspectRatio', float(resolution[2]))
 
     minTime = pc.playbackOptions(q=True, minTime=True)
     maxTime = pc.playbackOptions(q=True, maxTime=True)

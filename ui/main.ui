@@ -66,6 +66,16 @@
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Resolution</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="resolutionBox"/>
+      </item>
+      <item>
        <widget class="QPushButton" name="renderButton">
         <property name="minimumSize">
          <size>

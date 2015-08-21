@@ -20,6 +20,7 @@ import backend.renderer as renderer
 reload(renderer)
 import shutil
 import pymel.core as pc
+from collections import OrderedDict
 
 rootPath = qutil.dirname(__file__, depth=2)
 uiPath = osp.join(rootPath, 'ui')
@@ -29,6 +30,9 @@ os.environ['PYTHONPATH'] += os.pathsep + osp.join(rootPath, 'src', 'backend')
 
 title = 'Render Shots'
 homeDir = renderer.homeDir
+# keys for option vars
+resolution_key = 'renderShots_resolution'
+shotsPath_key = 'renderShots_shotsPath'
 
 Form, Base = uic.loadUiType(osp.join(uiPath, 'main.ui'))
 class RenderShotsUI(Form, Base):
@@ -43,15 +47,44 @@ class RenderShotsUI(Form, Base):
         self.shotsBox = cui.MultiSelectComboBox(self, '--Select Shots--')
         self.pathLayout.addWidget(self.shotsBox)
         
-        self.lastPath = ''
+        self.resolutions = OrderedDict()
+        self.resolutions['320x240'] = [320, 240, 1.333],
+        self.resolutions['640x480'] = [640, 480, 1.333],
+        self.resolutions['960x540'] = [960, 540, 1.777],
+        self.resolutions['1280x720'] = [1280, 720, 1.777],
+        self.resolutions['1920x1080'] = [1920, 1080, 1.777]
         
         
         self.renderButton.clicked.connect(self.render)
         self.browseButton.clicked.connect(self.setPath)
         self.shotsPathBox.textChanged.connect(self.populateShots)
-
+        self.resolutionBox.activated.connect(self.resolutionBoxActivated)
+        
+        self.setupWindow()
+        
         appUsageApp.updateDatabase('renderShots')
         
+    def resolutionBoxActivated(self):
+        qutil.addOptionVar(resolution_key, self.resolutionBox.currentText())
+        
+    def setupWindow(self):
+        # setup the resolution box
+        self.resolutionBox.addItems(self.resolutions.keys())
+        val = qutil.getOptionVar(resolution_key)
+        if val:
+            for i in range(self.resolutionBox.count()):
+                text = self.resolutionBox.itemText(i)
+                if text == val:
+                    self.resolutionBox.setCurrentIndex(i)
+                    break
+        # set shots path
+        val = qutil.getOptionVar(shotsPath_key)
+        if val:
+            self.shotsPathBox.setText(val)
+            self.lastPath = val
+        
+    def getResolution(self):
+        return self.resolutions[self.resolutionBox.currentText()]
         
     def render(self):
         try:
@@ -167,6 +200,7 @@ class RenderShotsUI(Form, Base):
         if path:
             shots = [shot for shot in os.listdir(path) if re.match('SQ\\d{3}_SH\\d{3}', shot)]
             self.shotsBox.addItems(shots)
+            qutil.addOptionVar(shotsPath_key, path)
     
     def closeEvent(self, event):
         self.deleteLater()
