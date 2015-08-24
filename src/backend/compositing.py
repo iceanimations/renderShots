@@ -47,104 +47,109 @@ def createComp(shots):
     rendersPath = osp.join(compPath, 'renders')
     if not osp.exists(rendersPath):
         os.mkdir(rendersPath)
-    
+    errors = {}
     for shot in shots:
-        shotPath = osp.join(homeDir, shot)
-        if not osp.exists(shotPath): continue
-        layers = os.listdir(shotPath)
-        nodes = []
-        if layers:
-            for layer in layers:
-                layerPath = osp.join(shotPath, layer)
-                for aov in os.listdir(layerPath):
-                    if aov.lower().endswith('beauty'):
-                        node = nuke.createNode('Read')
-                        aovPath = osp.join(layerPath, aov)
-                        filenames = os.listdir(aovPath)
-                        if filenames:
-                            match = re.search('\.\d+\.', filenames[0])
-                            if match:
-                                frames = [int(re.search('\.\d+\.', phile).group()[1:-1]) for phile in filenames]
-                                frames = sorted(frames)
-                                for i, frame in enumerate(frames):
-                                    for phile in filenames:
-                                        if str(frame) in phile:
-                                            try:
-                                                os.rename(osp.join(aovPath, phile), osp.join(aovPath, re.sub('\.\d+\.', '.'+str(i+1)+'.', phile)))
-                                            except:
-                                                pass
-                                frames = [1, 2, 3]
-                                node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.#.', filenames[0])).replace('\\', '/'))
-                                node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
-                                node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
-                                node.setName(layer)
-                                nodes.append(node)
-        if nodes:
-            
-            nukescripts.clear_selection_recursive()
-            createReadNode(nodes, 'occ')
-            createReadNode(nodes, 'env_occ')
-            createReadNode(nodes, 'env')
-            if len(nuke.selectedNodes()) == 2:
-                createNode('Merge2').knob('operation').setValue(20)
-            try:
-                lastNode = nuke.selectedNode()
-            except:
-                lastNode = None
-            nukescripts.clear_selection_recursive()
-            createReadNode(nodes, 'cont')
-            if lastNode: lastNode.setSelected(True)
-            try:
-                if len(nuke.selectedNodes()) == 2:
-                    mNode = createNode('Merge2')
-                    mNode.knob('operation').setValue(20)
-                    mNode.knob('screen_alpha').setValue(1)
-                lastNode = nuke.selectedNode()
+        try:
+            shotPath = osp.join(homeDir, shot)
+            if not osp.exists(shotPath): continue
+            layers = os.listdir(shotPath)
+            nodes = []
+            if layers:
+                for layer in layers:
+                    layerPath = osp.join(shotPath, layer)
+                    for aov in os.listdir(layerPath):
+                        if aov.lower().endswith('beauty'):
+                            node = nuke.createNode('Read')
+                            aovPath = osp.join(layerPath, aov)
+                            filenames = os.listdir(aovPath)
+                            if filenames:
+                                match = re.search('\.\d+\.', filenames[0])
+                                if match:
+                                    frames = [int(re.search('\.\d+\.', phile).group()[1:-1]) for phile in filenames]
+                                    frames = sorted(frames)
+                                    for i, frame in enumerate(frames):
+                                        for phile in filenames:
+                                            if str(frame) in phile:
+                                                try:
+                                                    os.rename(osp.join(aovPath, phile), osp.join(aovPath, re.sub('\.\d+\.', '.'+str(i+1)+'.', phile)))
+                                                except:
+                                                    pass
+                                    frames = [1, 2, 3]
+                                    node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.#.', filenames[0])).replace('\\', '/'))
+                                    node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
+                                    node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
+                                    node.setName(layer)
+                                    nodes.append(node)
+            if nodes:
+                
                 nukescripts.clear_selection_recursive()
-            except:
-                pass
-            nukescripts.clear_selection_recursive()
-            createReadNode(nodes, 'reflection')
-            if lastNode: lastNode.setSelected(True)
-            try:
-                if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge2')
-                lastNode = nuke.selectedNode()
-                nukescripts.clear_selection_recursive()
-            except:
-                pass
-            
-            nukescripts.clear_selection_recursive()
-            createReadNode(nodes, 'shadow')
-            if lastNode: lastNode.setSelected(True)
-            try:
-                if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge2')
-                lastNode = nuke.selectedNode()
-                nukescripts.clear_selection_recursive()
-            except:
-                pass
-            createReadNode(nodes, 'char')
-            createReadNode(nodes, 'char_occ')
-            try:
+                createReadNode(nodes, 'occ')
+                createReadNode(nodes, 'env_occ')
+                createReadNode(nodes, 'env')
                 if len(nuke.selectedNodes()) == 2:
                     createNode('Merge2').knob('operation').setValue(20)
-            except:
-                pass
-            if lastNode: lastNode.setSelected(True)
-            try:
-                if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge2')
-            except:
-                return
-            writeNode = nuke.createNode('Write')
-            renderShotDir = osp.join(rendersPath, shot)
-            if not osp.exists(renderShotDir):
-                os.mkdir(renderShotDir)
-            writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.#####.jpg').replace('\\', '/'))
-            nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
-            nuke.execute(writeNode, 1, 3, continueOnError=True)
-        nuke.scriptClose()
+                try:
+                    lastNode = nuke.selectedNode()
+                except:
+                    lastNode = None
+                nukescripts.clear_selection_recursive()
+                createReadNode(nodes, 'cont')
+                if lastNode: lastNode.setSelected(True)
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        mNode = createNode('Merge2')
+                        mNode.knob('operation').setValue(20)
+                        mNode.knob('screen_alpha').setValue(1)
+                    lastNode = nuke.selectedNode()
+                    nukescripts.clear_selection_recursive()
+                except:
+                    pass
+                nukescripts.clear_selection_recursive()
+                createReadNode(nodes, 'reflection')
+                if lastNode: lastNode.setSelected(True)
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        createNode('Merge2')
+                    lastNode = nuke.selectedNode()
+                    nukescripts.clear_selection_recursive()
+                except:
+                    pass
+                
+                nukescripts.clear_selection_recursive()
+                createReadNode(nodes, 'shadow')
+                if lastNode: lastNode.setSelected(True)
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        createNode('Merge2')
+                    lastNode = nuke.selectedNode()
+                    nukescripts.clear_selection_recursive()
+                except:
+                    pass
+                createReadNode(nodes, 'char')
+                createReadNode(nodes, 'char_occ')
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        createNode('Merge2').knob('operation').setValue(20)
+                except:
+                    pass
+                if lastNode: lastNode.setSelected(True)
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        createNode('Merge2')
+                except:
+                    return
+                writeNode = nuke.createNode('Write')
+                renderShotDir = osp.join(rendersPath, shot)
+                if not osp.exists(renderShotDir):
+                    os.mkdir(renderShotDir)
+                writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.#####.jpg').replace('\\', '/'))
+                nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
+                nuke.execute(writeNode, 1, 3, continueOnError=True)
+            nuke.scriptClose()
+        except Exception as ex:
+            errors[shot] = str(ex)
+    with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
+        f.write(str(errors))
 
 if __name__ == '__main__':
     shots = None
