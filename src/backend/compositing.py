@@ -23,7 +23,7 @@ def createReadNode(nodes, layerName):
     for node in nodes:
         if node.name().lower().startswith(layerName):
             node.setSelected(True)
-            break
+            return node
 
 def createComp(shots):
     
@@ -86,16 +86,19 @@ def createComp(shots):
             createReadNode(nodes, 'env_occ')
             createReadNode(nodes, 'env')
             if len(nuke.selectedNodes()) == 2:
-                createNode('Merge').knob('operation').setValue(15)
+                createNode('Merge2').knob('operation').setValue(20)
             try:
                 lastNode = nuke.selectedNode()
             except:
                 lastNode = None
+            nukescripts.clear_selection_recursive()
             createReadNode(nodes, 'cont')
             if lastNode: lastNode.setSelected(True)
             try:
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge').knob('operation').setValue(15)
+                    mNode = createNode('Merge2')
+                    mNode.knob('operation').setValue(20)
+                    mNode.knob('screen_alpha').setValue(1)
                 lastNode = nuke.selectedNode()
                 nukescripts.clear_selection_recursive()
             except:
@@ -105,7 +108,7 @@ def createComp(shots):
             if lastNode: lastNode.setSelected(True)
             try:
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge')
+                    createNode('Merge2')
                 lastNode = nuke.selectedNode()
                 nukescripts.clear_selection_recursive()
             except:
@@ -116,7 +119,7 @@ def createComp(shots):
             if lastNode: lastNode.setSelected(True)
             try:
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge')
+                    createNode('Merge2')
                 lastNode = nuke.selectedNode()
                 nukescripts.clear_selection_recursive()
             except:
@@ -125,13 +128,13 @@ def createComp(shots):
             createReadNode(nodes, 'char_occ')
             try:
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge').knob('operation').setValue(15)
+                    createNode('Merge2').knob('operation').setValue(20)
             except:
                 pass
             if lastNode: lastNode.setSelected(True)
             try:
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge')
+                    createNode('Merge2')
             except:
                 return
             writeNode = nuke.createNode('Write')
