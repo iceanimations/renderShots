@@ -40,7 +40,6 @@ def configureScene(parent=None, renderScene=False, resolution=None):
         else:
             print 'It seems like Redshift is not installed or not loaded'
         return
-    resolution = resolution[0]
     pc.setAttr('defaultRenderGlobals.animation', 1)
     pc.setAttr('defaultResolution.width', int(resolution[0]))
     pc.setAttr('defaultResolution.height', int(resolution[1]))
