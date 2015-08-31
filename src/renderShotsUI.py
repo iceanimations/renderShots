@@ -49,10 +49,10 @@ class RenderShotsUI(Form, Base):
         self.lastPath = ''
         
         self.resolutions = OrderedDict()
-        self.resolutions['320x240'] = [320, 240, 1.333],
-        self.resolutions['640x480'] = [640, 480, 1.333],
-        self.resolutions['960x540'] = [960, 540, 1.777],
-        self.resolutions['1280x720'] = [1280, 720, 1.777],
+        self.resolutions['320x240'] = [320, 240, 1.333]
+        self.resolutions['640x480'] = [640, 480, 1.333]
+        self.resolutions['960x540'] = [960, 540, 1.777]
+        self.resolutions['1280x720'] = [1280, 720, 1.777]
         self.resolutions['1920x1080'] = [1920, 1080, 1.777]
         
         
