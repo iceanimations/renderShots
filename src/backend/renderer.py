@@ -48,4 +48,6 @@ class Renderer(object):
                 self.parentWin.setSubStatus('')
                 layer.renderable.set(0)
                 i += 1
+            for layer in layers:
+                layer.renderable.set(1)
             return frames

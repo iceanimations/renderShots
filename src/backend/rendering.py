@@ -19,12 +19,14 @@ def render():
         pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
         #self.parentWin.setSubStatus('')
         layer.renderable.set(0)
+    for layer in layers:
+        layer.renderable.set(1)
 
-def configureScene(parent=None, renderScene=False, resolution=None):
-    f = open(osp.join(homeDir, 'info.txt'))
-    shot = f.read()
-    f.close()
-    ws = pc.workspace(o=True, q=True)
+def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
+    if not shot:
+        f = open(osp.join(homeDir, 'info.txt'))
+        shot = f.read()
+        f.close()
     pc.workspace(homeDir, o=True)
     node = pc.PyNode('redshiftOptions')
     
@@ -57,7 +59,6 @@ def configureScene(parent=None, renderScene=False, resolution=None):
         #pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep', remove=True)
         pc.setAttr('defaultRenderGlobals.byFrameStep', step)
 
-    pc.workspace(ws, o=True)
     if diff%2 != 0:
         step += 0.5
     frames = [int(minTime), int(minTime + step), int(maxTime)]
