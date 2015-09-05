@@ -22,6 +22,7 @@ def render():
     for layer in layers:
         layer.renderable.set(1)
 
+@imaya.undoChunk
 def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
     if not shot:
         f = open(osp.join(homeDir, 'info.txt'))
