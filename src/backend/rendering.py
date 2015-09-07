@@ -10,19 +10,6 @@ import os
 
 homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
-def render():
-    layers = imaya.getRenderLayers()
-    for layer in layers:
-        layer.renderable.set(0)
-    for layer in layers:
-        layer.renderable.set(1)
-        pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
-        #self.parentWin.setSubStatus('')
-        layer.renderable.set(0)
-    for layer in layers:
-        layer.renderable.set(1)
-
-@imaya.undoChunk
 def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
     if not shot:
         f = open(osp.join(homeDir, 'info.txt'))
@@ -57,7 +44,6 @@ def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
         pc.editRenderLayerGlobals(currentRenderLayer=layer)
         pc.setAttr('defaultRenderGlobals.startFrame', minTime)
         pc.setAttr('defaultRenderGlobals.endFrame', maxTime)
-        #pc.editRenderLayerAdjustment('defaultRenderGlobals.byFrameStep', remove=True)
         pc.setAttr('defaultRenderGlobals.byFrameStep', step)
 
     if diff%2 != 0:
@@ -66,5 +52,9 @@ def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
     with open(osp.join(homeDir, 'info1.txt'), 'w') as f:
         f.write(str(frames))
     if renderScene:
-        render()
+        layers = imaya.batchRender()
+        for layer in layers:
+            print 'Rendering: %s'%layer
+        for layer in layers:
+            layer.renderable.set(1)
     return frames

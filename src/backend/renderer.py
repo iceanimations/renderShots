@@ -37,17 +37,9 @@ class Renderer(object):
             frames = rendering.configureScene(self.parentWin, resolution=self.parentWin.getResolution())
             
             layers = imaya.getRenderLayers()
-            for layer in layers:
-                layer.renderable.set(0)
             length = len(layers)
-            i = 1
-            for layer in layers:
-                layer.renderable.set(1)
-                self.parentWin.setSubStatus('rendering: %s (%s of %s)'%(layer.name(), i, length))
-                pc.mel.mayaBatchRenderProcedure(1, "", "", "", "")
-                self.parentWin.setSubStatus('')
-                layer.renderable.set(0)
-                i += 1
+            for i, layer in enumerate(imaya.batchRender()):
+                self.parentWin.setSubStatus('rendering: %s (%s of %s)'%(layer, i+1, length))
             for layer in layers:
                 layer.renderable.set(1)
             return frames
