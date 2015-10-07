@@ -6,7 +6,6 @@ import os.path as osp
 import pymel.core as pc
 import imaya
 reload(imaya)
-import os
 
 homeDir = osp.join(osp.expanduser('~'), 'render_shots')
 
@@ -19,6 +18,7 @@ def configureScene(parent=None, renderScene=False, resolution=None, shot=None):
     node = pc.PyNode('redshiftOptions')
     
     node.imageFilePrefix.set("%s\<RenderLayer>\<RenderLayer>_<AOV>\<RenderLayer>_<AOV>_"%shot)
+    pc.setAttr("defaultRenderGlobals.imageFilePrefix", "%s/<RenderLayer>/<RenderLayer>_<AOV>/<RenderLayer>_<AOV>_"%shot, type="string")
     RedshiftAOVTools.fixAOVPrefixes()
     
     try:
