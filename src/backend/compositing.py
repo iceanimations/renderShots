@@ -25,7 +25,15 @@ def createReadNode(nodes, layerName):
             node.setSelected(True)
             return node
 
-def createComp(shots):
+def getFrameRange(nodes):
+    frameRange = []
+    for node in nodes:
+        fr = range(int(node.knob('first').getValue()), int(node.knob('last').getValue()) + 1)
+        if len(fr) > len(frameRange):
+            frameRange = fr
+    return min(frameRange), max(frameRange)
+
+def createComp(allFrames, shots):
     
     compPath = osp.join(homeDir, 'comps')
     if not osp.exists(compPath):
@@ -47,41 +55,51 @@ def createComp(shots):
     rendersPath = osp.join(compPath, 'renders')
     if not osp.exists(rendersPath):
         os.mkdir(rendersPath)
+    seqPath = allFrames if allFrames else homeDir
     errors = {}
     for shot in shots:
         try:
-            shotPath = osp.join(homeDir, shot)
+            shotPath = osp.join(seqPath, shot)
             if not osp.exists(shotPath): continue
+            if allFrames:
+                shotPath = osp.join(shotPath, os.listdir(shotPath)[0])
             layers = os.listdir(shotPath)
             nodes = []
+            frames = []
             if layers:
                 for layer in layers:
                     layerPath = osp.join(shotPath, layer)
+                    if osp.isfile(layerPath): continue
                     for aov in os.listdir(layerPath):
                         if aov.lower().endswith('beauty'):
                             node = nuke.createNode('Read')
                             aovPath = osp.join(layerPath, aov)
+                            if osp.isfile(aovPath): continue
                             filenames = os.listdir(aovPath)
                             if filenames:
                                 match = re.search('\.\d+\.', filenames[0])
                                 if match:
+                                    padding = len(match.group()) - 2
                                     frames = [int(re.search('\.\d+\.', phile).group()[1:-1]) for phile in filenames]
                                     frames = sorted(frames)
-                                    for i, frame in enumerate(frames):
-                                        for phile in filenames:
-                                            if str(frame) in phile:
-                                                try:
-                                                    os.rename(osp.join(aovPath, phile), osp.join(aovPath, re.sub('\.\d+\.', '.'+str(i+1)+'.', phile)))
-                                                except:
-                                                    pass
-                                    frames = [1, 2, 3]
-                                    node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.#.', filenames[0])).replace('\\', '/'))
+                                    if not allFrames: # if .mov not needed
+                                        for i, frame in enumerate(frames):
+                                            for phile in filenames:
+                                                if str(frame) in phile:
+                                                    try:
+                                                        os.rename(osp.join(aovPath, phile), osp.join(aovPath, re.sub('\.\d+\.', '.'+str(i+1)+'.', phile)))
+                                                    except:
+                                                        pass
+                                        frames = [1, 2, 3]
+                                    padding = '#'* padding
+                                    node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.'+ padding +'.', filenames[0])).replace('\\', '/'))
                                     node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
                                     node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
+                                    node.knob('on_error').setValue(3)
+                                    
                                     node.setName(layer)
                                     nodes.append(node)
             if nodes:
-                
                 nukescripts.clear_selection_recursive()
                 createReadNode(nodes, 'occ')
                 createReadNode(nodes, 'env_occ')
@@ -114,7 +132,7 @@ def createComp(shots):
                     nukescripts.clear_selection_recursive()
                 except:
                     pass
-                
+
                 nukescripts.clear_selection_recursive()
                 createReadNode(nodes, 'shadow')
                 if lastNode: lastNode.setSelected(True)
@@ -144,20 +162,24 @@ def createComp(shots):
                     os.mkdir(renderShotDir)
                 writeNode.knob('file').setValue(osp.join(renderShotDir, shot +'.#####.jpg').replace('\\', '/'))
                 nuke.scriptSaveAs(osp.join(compPath, shot+'.nk'), 1)
-                nuke.execute(writeNode, 1, 3, continueOnError=True)
+                minFrame = 1; maxFrame = 3
+                if frames and allFrames:
+                    minFrame, maxFrame = getFrameRange(nodes)
+                nuke.execute(writeNode, minFrame, maxFrame, continueOnError=True)
             nuke.scriptClose()
         except Exception as ex:
             errors[shot] = str(ex)
     with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
         f.write(str(errors))
 
-if __name__ == '__main__':
-    shots = None
+
+shots = None
+try:
     with open(osp.join(osp.expanduser('~'), 'compositing', 'info.txt')) as f:
         shots = eval(f.read())
     if shots:
-        try:
-            homeDir = shots[0]
-            createComp(shots[1:])
-        except Exception as ex:
-            print ex
+        homeDir = shots[1]
+        createComp(shots[0], shots[2:])
+except Exception as ex:
+    with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
+        f.write(str({'Unknown': str(ex)}))

@@ -46,7 +46,7 @@ class CompMaker(object):
         os.chdir(osp.dirname(nukePath))
         command = 'python %s'%(compositingFile)
         with open(osp.join(compositingDir, 'info.txt'), 'w') as f:
-            f.write(str([homeDir] + shots))
+            f.write(str([False, homeDir] + shots))
         self.setStatus('Creating and rendering comps')
         subprocess.call(command, shell=True)
         
