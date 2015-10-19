@@ -79,7 +79,9 @@ def createComp(allFrames, shots):
                             if filenames:
                                 match = re.search('\.\d+\.', filenames[0])
                                 if match:
-                                    padding = len(match.group()) - 2
+                                    padding = 1
+                                    if allFrames:
+                                        padding = len(match.group()) - 2
                                     frames = [int(re.search('\.\d+\.', phile).group()[1:-1]) for phile in filenames]
                                     frames = sorted(frames)
                                     if not allFrames: # if .mov not needed
