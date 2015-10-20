@@ -97,7 +97,6 @@ def createComp(allFrames, shots):
                                     node.knob('file').setValue(osp.join(aovPath, re.sub('\.\d+\.', '.'+ padding +'.', filenames[0])).replace('\\', '/'))
                                     node.knob('first').setValue(min(frames)); node.knob('origfirst').setValue(min(frames))
                                     node.knob('last').setValue(max(frames)); node.knob('origlast').setValue(max(frames))
-                                    node.knob('on_error').setValue(3)
                                     
                                     node.setName(layer)
                                     nodes.append(node)
