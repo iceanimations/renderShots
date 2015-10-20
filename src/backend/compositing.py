@@ -173,14 +173,14 @@ def createComp(allFrames, shots):
     with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
         f.write(str(errors))
 
-
-shots = None
-try:
-    with open(osp.join(osp.expanduser('~'), 'compositing', 'info.txt')) as f:
-        shots = eval(f.read())
-    if shots:
-        homeDir = shots[1]
-        createComp(shots[0], shots[2:])
-except Exception as ex:
-    with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
-        f.write(str({'Unknown': str(ex)}))
+if __name__ == "__main__":
+    shots = None
+    try:
+        with open(osp.join(osp.expanduser('~'), 'compositing', 'info.txt')) as f:
+            shots = eval(f.read())
+        if shots:
+            homeDir = shots[1]
+            createComp(shots[0], shots[2:])
+    except Exception as ex:
+        with open(osp.join(osp.expanduser('~'), 'compositing', 'errors.txt'), 'w') as f:
+            f.write(str({'Unknown': str(ex)}))
