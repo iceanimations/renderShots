@@ -22,7 +22,7 @@ def createNode(nodeName):
 def createReadNode(nodes, layerName):
     for node in nodes:
         if node.name().lower().startswith(layerName):
-            node.knob('on_error').setValue(3)
+            node.knob('on_error').setValue(1)
             node.setSelected(True)
             return node
 
@@ -105,7 +105,7 @@ def createComp(allFrames, shots):
                 nukescripts.clear_selection_recursive()
                 createReadNode(nodes, 'occ')
                 envOccNode = createReadNode(nodes, 'env_occ')
-                createReadNode(nodes, 'env')
+                createReadNode(nodes, 'env').knob('on_error').setValue(3)
                 if len(nuke.selectedNodes()) == 2:
                     node = createNode('Merge2').knob('operation')
                     if envOccNode is not None:
