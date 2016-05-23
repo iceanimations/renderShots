@@ -22,6 +22,7 @@ def createNode(nodeName):
 def createReadNode(nodes, layerName):
     for node in nodes:
         if node.name().lower().startswith(layerName):
+            node.knob('on_error').setValue(3)
             node.setSelected(True)
             return node
 
@@ -103,10 +104,12 @@ def createComp(allFrames, shots):
             if nodes:
                 nukescripts.clear_selection_recursive()
                 createReadNode(nodes, 'occ')
-                createReadNode(nodes, 'env_occ')
+                envOccNode = createReadNode(nodes, 'env_occ')
                 createReadNode(nodes, 'env')
                 if len(nuke.selectedNodes()) == 2:
-                    createNode('Merge2').knob('operation').setValue(20)
+                    node = createNode('Merge2').knob('operation')
+                    if envOccNode is not None:
+                        node.setValue(20)
                 try:
                     lastNode = nuke.selectedNode()
                 except:
@@ -144,11 +147,23 @@ def createComp(allFrames, shots):
                     nukescripts.clear_selection_recursive()
                 except:
                     pass
-                createReadNode(nodes, 'char')
-                createReadNode(nodes, 'char_occ')
+                nukescripts.clear_selection_recursive()
+                createReadNode(nodes, 'gen')
+                if lastNode: lastNode.setSelected(True)
                 try:
                     if len(nuke.selectedNodes()) == 2:
-                        createNode('Merge2').knob('operation').setValue(20)
+                        createNode('Merge2')
+                    lastNode = nuke.selectedNode()
+                    nukescripts.clear_selection_recursive()
+                except: pass
+                nukescripts.clear_selection_recursive()
+                if lastNode: lastNode.setSelected(True)
+                createReadNode(nodes, 'char')
+                try:
+                    if len(nuke.selectedNodes()) == 2:
+                        createNode('Merge2').knob('operation').setValue(28)
+                        lastNode = nuke.selectedNode()
+                        nukescripts.clear_selection_recursive()
                 except:
                     pass
                 if lastNode: lastNode.setSelected(True)
