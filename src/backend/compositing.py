@@ -142,7 +142,7 @@ def createComp(allFrames, shots):
                 if lastNode: lastNode.setSelected(True)
                 try:
                     if len(nuke.selectedNodes()) == 2:
-                        createNode('Merge2')
+                        createNode('Merge2').knob('mix').setValue(0.5)
                     lastNode = nuke.selectedNode()
                     nukescripts.clear_selection_recursive()
                 except:
