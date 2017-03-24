@@ -101,11 +101,13 @@ def createComp(allFrames, shots):
                                     
                                     node.setName(layer)
                                     nodes.append(node)
+            print nodes
             if nodes:
                 nukescripts.clear_selection_recursive()
                 createReadNode(nodes, 'occ')
                 envOccNode = createReadNode(nodes, 'env_occ')
-                createReadNode(nodes, 'env').knob('on_error').setValue(3)
+                envNode = createReadNode(nodes, 'env')
+                if envNode: envNode.knob('on_error').setValue(3)
                 if len(nuke.selectedNodes()) == 2:
                     node = createNode('Merge2').knob('operation')
                     if envOccNode is not None:
